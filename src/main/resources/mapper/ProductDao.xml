@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dongzhic.o2o.dao.ProductDao">
+    <insert id="insertProduct" parameterType="com.dongzhic.o2o.pojo.Product"
+            useGeneratedKeys="true" keyProperty="productId" keyColumn="product_id">
+        INSERT INTO
+        tb_product(product_name, product_desc, img_addr,
+          normal_price, promotion_price, priority, create_time,
+          last_edit_time, enable_status, product_category_id,
+          shop_id)
+        VALUE
+        (#{productName}, #{productDesc},#{imgAddr},
+          #{normalPrice},#{promotionPrice},#{priority},#{createTime},
+          #{lastEditTime},#{enableStatus},#{productCategory.productCategoryId},
+          #{shop.shopId})
+    </insert>
+    
+    <select id="queryProductList" resultType="com.dongzhic.o2o.pojo.Product" >
+        SELECT
+          a.product_id, a.product_name, a.product_desc,
+          a.img_addr, a.normal_price, a.promotion_price,
+          a.priority, a.enable_status
+        FROM tb_product a
+        <where>
+            <if test="productCondition.shop != null
+                   and productCondition.shop.shopId != null">
+                and a.shop_id = #{productCondition.shop.shopId}
+            </if>
+            <if test="productCondition.productCategory != null
+                    and productCondition.productCategory.productCategoryId">
+                and a.product_category_id = #{productCondition.productCategory.productCategoryId}
+            </if>
+            <if test="productCondition.productName != null">
+                and a.product_name like '%${productCondition.productName}%'
+            </if>
+            <if test="productCondition.enableStatus != null">
+                and a.enable_status = #{productCondition.enableStatus}
+            </if>
+        </where>
+        ORDER BY a.priority DESC
+        LIMIT #{rowIndex},#{pageSize}
+    </select>
+    
+    <select id="queryProductCount" resultType="int">
+        SELECT count(1) FROM tb_product a
+        <where>
+            <if test="productCondition.shop != null
+                    and productCondition.shop.shopId != null">
+                AND a.shop_id = #{productCondition.shop.shopId}
+            </if>
+            <if test="productCondition.productCategory != null
+                    and productCondition.productCategory.productCategoryId">
+                AND a.product_category_id = #{productCondition.productCategory.productCategoryId}
+            </if>
+            <if test="productCondition.productName != null">
+                AND a.product_name LIKE '%${productCondition.productName}%'
+            </if>
+            <if test="productCondition.enableStatus != null">
+                AND a.enable_status = #{productCondition.enableStatus}
+            </if>
+        </where>
+    </select>
+    
+    <select id="getProductById" parameterType="Long" resultMap="productMap">
+        SELECT
+          a.product_id, a.product_name, a.product_desc,
+          a.img_addr, a.normal_price, a.promotion_price,
+          a.priority, a.create_time, a.last_edit_time,
+          a.enable_status, a.product_category_id, a.shop_id,
+          b.product_img_id, b.img_addr, b.img_desc,
+          a.priority, a.create_time
+        FROM tb_product a left tb_product_img b
+          on a.product_id = b.product_id
+        WHERE a.product_id = #{productId}
+        ORDER BY a.priority DESC
+    </select>
+    
+    <update id="updateProduct" parameterType="com.dongzhic.o2o.pojo.Product"
+            keyProperty="product_id" useGeneratedKeys="true">
+        UPDATE tb_product a
+        <set>
+          <if test="productName != null">a.product_name=#{productName},</if>
+          <if test="productDesc != null">a.product_desc=#{productDesc},</if>
+          <if test="imgAddr != null">a.img_addr=#{imgAddr},</if>
+          <if test="normalPrice != null">a.normal_price=#{normalPrice},</if>
+          <if test="promotionPrice != null">a.promotion_price=#{promotionPrice},</if>
+          <if test="priority != null">a.priority=#{priority},</if>
+          <if test="lastEditTime != null">a.last_edit_time=#{lastEditTime},</if>
+          <if test="enableStatus != null">a.enable_status=#{enableStatus},</if>
+          <if test="productCategory != null and productCategory.productCategoryId">
+              a.product_category_id=#{productCategory.productCategoryId}
+          </if>
+        </set>
+        WHERE a.shop_id = #{shop.shopId}
+          AND a.product_id = #{productId}
+    </update>
+    
+    <resultMap id="productMap" type="com.dongzhic.o2o.pojo.Product">
+        <id column="product_id" property="productId" />
+        <result column="product_name" property="productName" />
+        <result column="product_desc" property="productDesc" />
+        <result column="img_addr" property="imgAddr" />
+        <result column="normal_price" property="normalPrice" />
+        <result column="promotion_price" property="promotionPrice" />
+        <result column="priority" property="priority" />
+        <result column="create_time" property="createTime" />
+        <result column="last_edit_time" property="lastEditTime" />
+        <result column="enable_status" property="enableStatus" />
+        <association property="productCategory" column="product_category_id"
+                     javaType="com.dongzhic.o2o.pojo.ProductCategory" >
+            <id column="product_category_id" property="productCategoryId" />
+            <result column="product_category_name" property="productCategoryName" />
+        </association>
+        <association property="shop" column="shop_id"
+                     javaType="com.dongzhic.o2o.pojo.Shop" >
+            <id column="shop_id" property="shopId" />
+            <result column="owner_id" property="ownerId" />
+            <result column="shop_name" property="shopName" />
+        </association>
+        <collection property="productImgList" column="product_id"
+                    ofType="com.dongzhic.o2o.pojo.ProductImg" >
+            <id column="product_img_id" property="productImgId" />
+            <result column="img_addr" property="imgAddr" />
+            <result column="img_desc" property="imgDesc" />
+            <result column="priority" property="priority" />
+            <result column="create_time" property="createTime" />
+            <result column="product_id" property="productId" />
+        </collection>
+
+    </resultMap>
+
+    <update id="updateProductCategoryToNull" parameterType="Long">
+        UPDATE tb_product a
+        SET a.product_category_id = null
+        WHERE a.product_category_id = #{productCategoryId}
+    </update>
+
+</mapper>
