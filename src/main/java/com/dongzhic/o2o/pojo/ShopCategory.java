@@ -34,7 +34,7 @@ public class ShopCategory {
 	/**
 	 * 修改时间
 	 */
-	private Date lastEditTIme;
+	private Date lastEditTime;
 	/**
 	 * 上级ID
 	 */
@@ -76,11 +76,11 @@ public class ShopCategory {
 	public void setCreateTime(Date createTime) {
 		this.createTime = createTime;
 	}
-	public Date getLastEditTIme() {
-		return lastEditTIme;
+	public Date getLastEditTime() {
+		return lastEditTime;
 	}
-	public void setLastEditTIme(Date lastEditTIme) {
-		this.lastEditTIme = lastEditTIme;
+	public void setLastEditTime(Date lastEditTime) {
+		this.lastEditTime = lastEditTime;
 	}
 	public ShopCategory getParent() {
 		return parent;

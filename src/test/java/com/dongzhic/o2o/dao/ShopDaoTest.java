@@ -40,7 +40,7 @@ public class ShopDaoTest extends BaseTest {
 
     @Test
     @Ignore
-    public void testQueryByShopId () {
+    public void testQueryByShopId ()  {
         Shop shop = shopDao.queryByShopId(11L);
         System.out.println(shop.getArea().getAreaId());
         System.out.println(shop.getArea().getAreaName());
@@ -79,8 +79,23 @@ public class ShopDaoTest extends BaseTest {
         shop.setShopDesc("测试描述1");
         shop.setShopAddr("测试地址1");
         shop.setShopImg("upload/item/shop8/2018013111511587653.jpg");
-        shop.setLastEditTIme(new Date());
+        shop.setLastEditTime(new Date());
         int effectedNum = shopDao.updateShop(shop);
         Assert.assertEquals(1, effectedNum);
+    }
+
+    @Test
+    public void testShopListAndCount() {
+        Shop shopCondition = new Shop();
+        ShopCategory childCategory = new ShopCategory();
+        ShopCategory parentCategory = new ShopCategory();
+        parentCategory.setShopCategoryId(3L);
+        childCategory.setParent(parentCategory);
+        shopCondition.setShopCategory(childCategory);
+        List<Shop> shops = shopDao.queryShopList(shopCondition, 0, 6);
+        int count = shopDao.queryShopCount(shopCondition);
+        System.out.println("店铺列表大小："+shops.size());
+        System.out.println("店铺总数："+count);
+
     }
 }

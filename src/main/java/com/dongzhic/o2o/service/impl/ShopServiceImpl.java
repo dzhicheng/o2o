@@ -40,7 +40,7 @@ public class ShopServiceImpl implements ShopService {
             //给店铺信息付初始值
             shop.setEnableStatus(0);
             shop.setCreateTime(new Date());
-            shop.setLastEditTIme(new Date());
+            shop.setLastEditTime(new Date());
             //添加店铺信息
             int effectedNum = shopDao.insertShop(shop);
             if (effectedNum <= 0) {
@@ -86,7 +86,7 @@ public class ShopServiceImpl implements ShopService {
                    addShopImg(shop, thumbnail);
                }
                //2、跟新店铺信息
-               shop.setLastEditTIme(new Date());
+               shop.setLastEditTime(new Date());
                int effectedNum = shopDao.updateShop(shop);
                if (effectedNum <= 0) {
                    return new ShopExecution(ShopSateEnum.INNER_ERROR);

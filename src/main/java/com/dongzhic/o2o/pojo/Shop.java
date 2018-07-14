@@ -116,11 +116,11 @@ public class Shop {
 	public void setCreateTime(Date createTime) {
 		this.createTime = createTime;
 	}
-	public Date getLastEditTIme() {
+	public Date getLastEditTime() {
 		return lastEditTime;
 	}
-	public void setLastEditTIme(Date lastEditTIme) {
-		this.lastEditTime = lastEditTIme;
+	public void setLastEditTime(Date lastEditTime) {
+		this.lastEditTime = lastEditTime;
 	}
 	public Integer getEnableStatus() {
 		return enableStatus;

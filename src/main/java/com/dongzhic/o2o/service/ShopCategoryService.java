@@ -9,9 +9,9 @@ import java.util.List;
  */
 public interface ShopCategoryService {
     /**
-     * 获取商铺种类列表
-     * @param shopCategory
+     * 根据查询条件，获取ShopCategory列表
+     * @param shopCategoryCondition
      * @return
      */
-    List<ShopCategory> getShopCategoryList (ShopCategory shopCategory);
+    List<ShopCategory> getShopCategoryList (ShopCategory shopCategoryCondition);
 }

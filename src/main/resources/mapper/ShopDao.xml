@@ -115,6 +115,12 @@
                 and a.enable_status = #{shopCondition.enableStatus}
             </if>
             <if test="shopCondition.shopCategory != null
+                and shopCondition.shopCategory.parent != null
+                and shopCondition.shopCategory.parent.shopCategoryId != null">
+                and a.shop_category_id in (SELECT shop_category_id FROM tb_shop_category
+                  WHERE parent_id = #{shopCondition.shopCategory.parent.shopCategoryId})
+            </if>
+            <if test="shopCondition.shopCategory != null
                 and shopCondition.shopCategory.shopCategoryId != null">
                 and a.shop_category_id = #{shopCondition.shopCategory.shopCategoryId}
             </if>
@@ -146,6 +152,12 @@
             </if>
             <if test="shopCondition.enableStatus != null">
                 and a.enable_status = #{shopCondition.enableStatus}
+            </if>
+            <if test="shopCondition.shopCategory != null
+                and shopCondition.shopCategory.parent != null
+                and shopCondition.shopCategory.parent.shopCategoryId != null">
+                and a.shop_category_id in (SELECT shop_category_id FROM tb_shop_category
+                WHERE parent_id = #{shopCondition.shopCategory.parent.shopCategoryId})
             </if>
             <if test="shopCondition.shopCategory != null
                 and shopCondition.shopCategory.shopCategoryId != null">

@@ -18,6 +18,12 @@ public class ShopCategoryTest extends BaseTest {
 
     @Test
     public void testQueryShopCategory () {
+
+        //获取一级菜单
+        List<ShopCategory> shopCategoryList1 = shopCategoryDao.queryShopCategory(null);
+        Assert.assertEquals(1, shopCategoryList1.size());
+
+        //获取二级菜单
         List<ShopCategory> shopCategoryList = shopCategoryDao.queryShopCategory(new ShopCategory());
         ShopCategory childShopCategory = new ShopCategory();
         ShopCategory parentShopCategory = new ShopCategory();

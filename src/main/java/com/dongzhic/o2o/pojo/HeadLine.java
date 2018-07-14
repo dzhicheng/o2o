@@ -6,7 +6,7 @@ import java.util.Date;
  * 头条类
  * @author dongzc
  */
-public class HeadLIne {
+public class HeadLine {
 
 	/**
 	 * ID

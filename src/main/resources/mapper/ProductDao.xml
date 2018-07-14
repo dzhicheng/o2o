@@ -71,9 +71,9 @@
           a.enable_status, a.product_category_id, a.shop_id,
           b.product_img_id, b.img_addr, b.img_desc,
           a.priority, a.create_time
-        FROM tb_product a left tb_product_img b
-          on a.product_id = b.product_id
+        FROM tb_product a, tb_product_img b
         WHERE a.product_id = #{productId}
+          AND a.product_id = b.product_id
         ORDER BY a.priority DESC
     </select>
     

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dongzhic.o2o.dao.HeadLineDao">
+
+    <select id="queryHeadLine" resultType="com.dongzhic.o2o.pojo.HeadLine">
+        SELECT
+          a.lind_id, a.line_name, a.line_link,
+          a.line_img, a.priority, a.enable_status,
+          a.create_time, a.last_edit_time
+        FROM
+          tb_head_line a
+        <where>
+            <if test="headLineCondition.enableStatus != null">
+                and a.enable_status = #{headLineCondition.enableStatus}
+            </if>
+        </where>
+        ORDER BY a.priority DESC
+    </select>
+</mapper>
