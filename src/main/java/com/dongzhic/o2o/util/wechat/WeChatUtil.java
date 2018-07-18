@@ -1,0 +1,158 @@
+package com.dongzhic.o2o.util.wechat;
+
+import com.dongzhic.o2o.dto.UserAccessToken;
+import com.dongzhic.o2o.dto.WeChatUser;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import java.io.*;
+import java.net.ConnectException;
+import java.net.URL;
+import java.security.SecureRandom;
+
+/**
+ *  微信工具类：提交http请求给微信，从来获取用户信息
+ * @author dongzc
+ * @date 2018/7/17 17:59
+ */
+public class WeChatUtil {
+
+    private static Logger log = LoggerFactory.getLogger(WeChatUtil.class);
+
+    /**
+     * 获取UserAccessToken实体类
+     * @param code
+     * @return
+     */
+    public static UserAccessToken getUserAccessToken (String code) {
+        // 测试号信息里的appId
+        String appId = "您的appId";
+        log.debug("appId:"+appId);
+        // 测试号信息里的appsecret
+        String appsecret = "您的appsecet";
+        log.debug("appsecret:"+appsecret);
+        // 根据传入的code,拼接出访问微信定义号的接口的URL
+        String url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid="+appId+"&secret=" +appsecret
+                + "&code" + code + "&grant_type=authorization_code";
+        // 向相应的url发起请求，获取token json字符串
+        String tokenStr = httpsRequest(url, "GET", null);
+        log.debug("userAccessToken:"+tokenStr);
+        UserAccessToken token = new UserAccessToken();
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            token = objectMapper.readValue(tokenStr, UserAccessToken.class);
+        } catch (JsonParseException e) {
+            log.error("获取用户accessToken失败: " + e.getMessage()); e.printStackTrace();
+        } catch (JsonMappingException e) {
+            log.error("获取用户accessToken失败: " + e.getMessage()); e.printStackTrace();
+        } catch (IOException e) {
+            log.error("获取用户accessToken失败: " + e.getMessage()); e.printStackTrace();
+        }
+        if (token == null) {
+            log.error("获取用户accessToken失败");
+            return null;
+        }
+        return token;
+    }
+
+    public static WeChatUser getUserInfo (String accessToken, String openId) {
+        // 根据传入的accessToken以及openId拼接出访问微信定义的端口并获取用户信息的URL
+        String url = "https://api.weixin.qq.com/sns/userinfo?access_token="+accessToken+"&openId="+openId+"&lang=zh_CN";
+        // 根据url获取用户信息json字符串
+        String userStr = httpsRequest(url, "Get", null);
+        log.debug("user info :"+userStr);
+        WeChatUser user = new WeChatUser();
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            user = objectMapper.readValue(userStr, WeChatUser.class);
+        }catch (JsonParseException e) {
+            log.error("获取用户信息失败: " + e.getMessage());
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            log.error("获取用户信息失败: " + e.getMessage());
+            e.printStackTrace();
+        } catch (IOException e) {
+            log.error("获取用户信息失败: " + e.getMessage());
+            e.printStackTrace();
+        }
+        if (user == null) {
+            log.error("获取用户信息失败");
+            return null;
+        }
+
+        return user;
+
+
+    }
+
+    /**
+     * 发起https请求并获取结果
+     * @param requestUrl 请求地址
+     * @param requestMethod 请求方式（GET、POST）
+     * @param outputStr 提交的数据
+     * @return json字符串
+     */
+    public static String httpsRequest (String requestUrl, String requestMethod, String outputStr) {
+        StringBuffer buffer = new StringBuffer();
+        try {
+            // 创建SSLContext对象，并使用指定的信任管理器初始化
+            TrustManager[] tm = {new MyX509TrustManager()};
+            SSLContext sslContext = SSLContext.getInstance("SSL", "SunJSSE");
+            sslContext.init(null, tm, new SecureRandom());
+            // 从上述的SSLContext对象中获取SSLSocketFactory对象
+            SSLSocketFactory ssf = sslContext.getSocketFactory();
+
+            URL url = new URL(requestUrl);
+            HttpsURLConnection httpsURLConn = (HttpsURLConnection) url.openConnection();
+            httpsURLConn.setSSLSocketFactory(ssf);
+            httpsURLConn.setDoOutput(true);
+            httpsURLConn.setDoInput(true);
+            httpsURLConn.setUseCaches(false);
+            //设置请求方式（GET/POST）
+            httpsURLConn.setRequestMethod(requestMethod);
+
+            if ("GET".equals(requestMethod)) {
+                httpsURLConn.connect();
+            }
+
+            // 当有数据需要提交时
+            if (null != outputStr) {
+                OutputStream outputStream = httpsURLConn.getOutputStream();
+                outputStream.write(outputStr.getBytes("UTF-8"));
+                outputStream.close();
+            }
+
+            //将返回的输入流转换成字符串
+            InputStream inputStream = httpsURLConn.getInputStream();
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+            String str = null;
+            while ((str = bufferedReader.readLine()) != null){
+                buffer.append(str);
+            }
+            bufferedReader.close();
+            inputStreamReader.close();
+            //释放资源
+            inputStream.close();
+            inputStream = null;
+            httpsURLConn.disconnect();
+            log.debug("https buffer:"+buffer.toString());
+        } catch (ConnectException e) {
+            log.error("weChat server connection timed out .");
+        } catch (Exception e) {
+            log.error("https request error:{}", e);
+        }
+        return buffer.toString();
+    }
+
+
+
+}
