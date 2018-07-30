@@ -36,7 +36,7 @@ public class WeChatUtil {
         String appId = "wxe30612cb1fe43904";
         log.debug("appId:"+appId);
         // 测试号信息里的appsecret
-        String appsecret = " 0d2947ab7c78f6cfe2e22035aad82064 ";
+        String appsecret = "0d2947ab7c78f6cfe2e22035aad82064";
         log.debug("appsecret:"+appsecret);
         // 根据传入的code,拼接出访问微信定义号的接口的URL
         String url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid="+appId+"&secret=" +appsecret
