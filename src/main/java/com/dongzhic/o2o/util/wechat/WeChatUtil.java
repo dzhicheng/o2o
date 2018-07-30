@@ -33,10 +33,10 @@ public class WeChatUtil {
      */
     public static UserAccessToken getUserAccessToken (String code) {
         // 测试号信息里的appId
-        String appId = "您的appId";
+        String appId = "wxe30612cb1fe43904";
         log.debug("appId:"+appId);
         // 测试号信息里的appsecret
-        String appsecret = "您的appsecet";
+        String appsecret = " 0d2947ab7c78f6cfe2e22035aad82064 ";
         log.debug("appsecret:"+appsecret);
         // 根据传入的code,拼接出访问微信定义号的接口的URL
         String url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid="+appId+"&secret=" +appsecret
@@ -101,6 +101,10 @@ public class WeChatUtil {
      */
     public static String httpsRequest (String requestUrl, String requestMethod, String outputStr) {
         StringBuffer buffer = new StringBuffer();
+        BufferedReader bufferedReader = null;
+        InputStreamReader inputStreamReader = null;
+        InputStream inputStream = null;
+        HttpsURLConnection httpsURLConn = null;
         try {
             // 创建SSLContext对象，并使用指定的信任管理器初始化
             TrustManager[] tm = {new MyX509TrustManager()};
@@ -110,7 +114,7 @@ public class WeChatUtil {
             SSLSocketFactory ssf = sslContext.getSocketFactory();
 
             URL url = new URL(requestUrl);
-            HttpsURLConnection httpsURLConn = (HttpsURLConnection) url.openConnection();
+            httpsURLConn = (HttpsURLConnection) url.openConnection();
             httpsURLConn.setSSLSocketFactory(ssf);
             httpsURLConn.setDoOutput(true);
             httpsURLConn.setDoInput(true);
@@ -130,25 +134,43 @@ public class WeChatUtil {
             }
 
             //将返回的输入流转换成字符串
-            InputStream inputStream = httpsURLConn.getInputStream();
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            inputStream = httpsURLConn.getInputStream();
+            inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+            bufferedReader = new BufferedReader(inputStreamReader);
 
             String str = null;
             while ((str = bufferedReader.readLine()) != null){
                 buffer.append(str);
             }
-            bufferedReader.close();
-            inputStreamReader.close();
-            //释放资源
-            inputStream.close();
             inputStream = null;
-            httpsURLConn.disconnect();
             log.debug("https buffer:"+buffer.toString());
         } catch (ConnectException e) {
             log.error("weChat server connection timed out .");
         } catch (Exception e) {
             log.error("https request error:{}", e);
+        } finally {
+            if (bufferedReader != null) {
+                try {
+                    bufferedReader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                if (inputStreamReader != null) {
+                    inputStreamReader.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            httpsURLConn.disconnect();
         }
         return buffer.toString();
     }
