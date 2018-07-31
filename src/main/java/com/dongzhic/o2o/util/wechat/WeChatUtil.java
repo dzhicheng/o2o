@@ -40,7 +40,7 @@ public class WeChatUtil {
         log.debug("appsecret:"+appsecret);
         // 根据传入的code,拼接出访问微信定义号的接口的URL
         String url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid="+appId+"&secret=" +appsecret
-                + "&code" + code + "&grant_type=authorization_code";
+                + "&code=" + code + "&grant_type=authorization_code";
         // 向相应的url发起请求，获取token json字符串
         String tokenStr = httpsRequest(url, "GET", null);
         log.debug("userAccessToken:"+tokenStr);
@@ -64,9 +64,9 @@ public class WeChatUtil {
 
     public static WeChatUser getUserInfo (String accessToken, String openId) {
         // 根据传入的accessToken以及openId拼接出访问微信定义的端口并获取用户信息的URL
-        String url = "https://api.weixin.qq.com/sns/userinfo?access_token="+accessToken+"&openId="+openId+"&lang=zh_CN";
+        String url = "https://api.weixin.qq.com/sns/userinfo?access_token="+accessToken+"&openid="+openId+"&lang=zh_CN";
         // 根据url获取用户信息json字符串
-        String userStr = httpsRequest(url, "Get", null);
+        String userStr = httpsRequest(url, "GET", null);
         log.debug("user info :"+userStr);
         WeChatUser user = new WeChatUser();
         ObjectMapper objectMapper = new ObjectMapper();
