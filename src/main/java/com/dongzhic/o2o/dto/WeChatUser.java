@@ -44,7 +44,7 @@ public class WeChatUser implements Serializable {
     /**
      * 头像图片地址
      */
-    @JsonProperty("headImgUrl")
+    @JsonProperty("headimgurl")
     private String headImgUrl;
     /**
      * 语言
