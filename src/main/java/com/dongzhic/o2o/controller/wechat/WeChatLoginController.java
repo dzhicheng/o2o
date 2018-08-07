@@ -1,10 +1,17 @@
 package com.dongzhic.o2o.controller.wechat;
 
 import com.dongzhic.o2o.dto.UserAccessToken;
+import com.dongzhic.o2o.dto.WeChatAuthExecution;
 import com.dongzhic.o2o.dto.WeChatUser;
+import com.dongzhic.o2o.enums.WeChatAuthStateEnum;
+import com.dongzhic.o2o.pojo.PersonInfo;
+import com.dongzhic.o2o.pojo.WeChatAuth;
+import com.dongzhic.o2o.service.PersonInfoService;
+import com.dongzhic.o2o.service.WeChatAuthService;
 import com.dongzhic.o2o.util.wechat.WeChatUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -30,6 +37,20 @@ public class WeChatLoginController {
 
     private Logger log = LoggerFactory.getLogger(WeChatController.class);
 
+    /**
+     * 用户界面
+     */
+    private final String FRONTEND = "1";
+    /**
+     * 商家管理界面
+     */
+    private final String SHOPEND = "2";
+
+    @Autowired
+    private PersonInfoService personInfoService;
+    @Autowired
+    private WeChatAuthService weChatAuthService;
+
     @RequestMapping(value = "/loginCheck", method = RequestMethod.GET)
     public String doGet (HttpServletRequest request, HttpServletResponse response) {
         log.debug("weChat login get ...");
@@ -37,9 +58,10 @@ public class WeChatLoginController {
         String code = request.getParameter("code");
         log.debug("weChat code : "+ code);
         // state用来传我们定义的内容，方便程序调用
-//        String roleType = request.getParameter("state");
+        String roleType = request.getParameter("state");
         WeChatUser weChatUser = null;
         String openId = null;
+        WeChatAuth weChatAuth = null;
         if (null != code ) {
             UserAccessToken token;
             // 通过code获得access_token
@@ -53,11 +75,31 @@ public class WeChatLoginController {
             weChatUser = WeChatUtil.getUserInfo(acessToken, openId);
             log.debug("weChat login usr : "+weChatUser.toString());
             request.getSession().setAttribute("openId", openId);
+            weChatAuth = weChatAuthService.getWeChatAuthByOpenId(openId);
         }
-        if (weChatUser != null) {
-            return "/frontend/index";
+
+        if (weChatAuth == null) {
+            PersonInfo personInfo = WeChatUtil.getPersonInfoFromRequest(weChatUser);
+            weChatAuth = new WeChatAuth();
+            weChatAuth.setOpenId(openId);
+            if (FRONTEND.equals(roleType)) {
+                personInfo.setUserType(1);
+            } else {
+                personInfo.setUserType(2);
+            }
+            weChatAuth.setPersonInfo(personInfo);
+            WeChatAuthExecution we = weChatAuthService.register(weChatAuth);
+            if (we.getState() != WeChatAuthStateEnum.SUCCESS.getState()) {
+                return null;
+            } else {
+                personInfo = personInfoService.getPersonInfoById(weChatAuth.getPersonInfo().getUserId());
+                request.getSession().setAttribute("user", personInfo);
+            }
+        }
+        if (FRONTEND.equals(roleType)) {
+            return "frontend/index";
         } else {
-            return null;
+            return "shopAdmin/shopList";
         }
     }
 

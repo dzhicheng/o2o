@@ -6,11 +6,11 @@ import java.util.Date;
  * 微信账号
  * @author dongzc
  */
-public class WechatAuth {
+public class WeChatAuth {
 	/**
 	 * ID
 	 */
-	private Long wechatAUthId;
+	private Long weChatAuthId;
 	/**
 	 * openID
 	 */
@@ -23,11 +23,12 @@ public class WechatAuth {
 	 * 用户
 	 */
 	private PersonInfo personInfo;
-	public Long getWechatAUthId() {
-		return wechatAUthId;
+
+	public Long getWeChatAuthId() {
+		return weChatAuthId;
 	}
-	public void setWechatAUthId(Long wechatAUthId) {
-		this.wechatAUthId = wechatAUthId;
+	public void setWeChatAuthId(Long wechatAUthId) {
+		this.weChatAuthId = wechatAUthId;
 	}
 	public String getOpenId() {
 		return openId;

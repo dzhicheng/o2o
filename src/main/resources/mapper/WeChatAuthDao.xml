@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dongzhic.o2o.dao.WeChatAuthDao">
+    <resultMap id="weChatAuthResultMap" type="com.dongzhic.o2o.pojo.WeChatAuth">
+        <id column="wechat_auth_id" property="weChatAuthId" />
+        <result column="open_id" property="openId" />
+        <result column="create_time" property="createTime" />
+        <association property="personInfo" column="user_id"
+                     javaType="com.dongzhic.o2o.pojo.PersonInfo">
+            <id column="user_id" property="userId" />
+            <result column="name" property="name" />
+            <result column="profile_img" property="profileImg" />
+            <result column="email" property="email" />
+            <result column="gender" property="gender" />
+            <result column="enable_status" property="enableStatus" />
+            <result column="user_type" property="userType" />
+            <result column="create_time" property="createTime" />
+            <result column="last_edit_time" property="lastEditTime" />
+        </association>
+    </resultMap>
+    <select id="queryWeChatInfoByOpenId" resultMap="weChatAuthResultMap"
+            parameterType="String">
+        SELECT
+          a.wechat_auth_id, a.open_id, a.create_time,
+          b.user_id, b.name, b.profile_img, b.email,
+          b.gender, b.enable_status, b.user_type,
+          b.create_time, b.last_edit_time
+        FROM tb_wechat_auth a, tb_person_info b
+        WHERE a.open_id = #{openId}
+          AND a.user_id = b.user_id
+    </select>
+    <insert id="insertWeCharAuth" parameterType="com.dongzhic.o2o.pojo.WeChatAuth">
+        INSERT INTO
+          tb_wechat_auth(user_id, open_id, create_time)
+        VALUE
+          (#{personInfo.userId}, #{openId}, #{createTime})
+    </insert>
+</mapper>

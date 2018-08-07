@@ -2,6 +2,8 @@ package com.dongzhic.o2o.util.wechat;
 
 import com.dongzhic.o2o.dto.UserAccessToken;
 import com.dongzhic.o2o.dto.WeChatUser;
+import com.dongzhic.o2o.pojo.PersonInfo;
+import com.dongzhic.o2o.pojo.WeChatAuth;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -173,6 +175,20 @@ public class WeChatUtil {
             httpsURLConn.disconnect();
         }
         return buffer.toString();
+    }
+
+    /**
+     * 将WeChatUser里面的信息转换成PersonInfo的信息
+     * @param weChatUser
+     * @return
+     */
+    public static PersonInfo getPersonInfoFromRequest (WeChatUser weChatUser) {
+        PersonInfo personInfo = new PersonInfo();
+        personInfo.setName(weChatUser.getNickName());
+        personInfo.setGender(weChatUser.getSex());
+        personInfo.setProfileImg(weChatUser.getHeadImgUrl());
+        personInfo.setEnableStatus(1);
+        return personInfo;
     }
 
 
