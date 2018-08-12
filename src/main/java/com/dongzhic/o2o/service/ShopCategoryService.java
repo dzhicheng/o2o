@@ -8,6 +8,9 @@ import java.util.List;
  * @author dongzc
  */
 public interface ShopCategoryService {
+
+    String SCLISTKEY = "shopCategoryList";
+
     /**
      * 根据查询条件，获取ShopCategory列表
      * @param shopCategoryCondition

@@ -10,6 +10,8 @@ import java.util.List;
  */
 public interface AreaService {
 
+    String AREALISTKEY = "areaList";
+
     /**
      * 获取区域列表
      * @return areaList
