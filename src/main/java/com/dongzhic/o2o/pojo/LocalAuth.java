@@ -15,7 +15,7 @@ public class LocalAuth {
 	/**
 	 * 用户名
 	 */
-	private String username;
+	private String userName;
 	/**
 	 * 密码
 	 */
@@ -32,17 +32,18 @@ public class LocalAuth {
 	 * 用户
 	 */
 	private PersonInfo personInfo;
+
 	public Long getLocalAuthId() {
 		return localAuthId;
 	}
 	public void setLocalAuthId(Long localAuthId) {
 		this.localAuthId = localAuthId;
 	}
-	public String getUsername() {
-		return username;
+	public String getUserName() {
+		return userName;
 	}
-	public void setUsername(String username) {
-		this.username = username;
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 	public String getPassword() {
 		return password;

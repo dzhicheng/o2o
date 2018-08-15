@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dongzhic.o2o.dao.LocalAuthDao">
+    <resultMap id="localAuthResultMap" type="com.dongzhic.o2o.pojo.LocalAuth">
+        <id column="local_auth_id" property="localAuthId" />
+        <result column="username" property="userName" />
+        <result column="password" property="password" />
+        <result column="create_time" property="createTime" />
+        <result column="last_edit_time" property="lastEditTime" />
+        <association property="personInfo" column="user_id"
+                     javaType="com.dongzhic.o2o.pojo.PersonInfo">
+            <id column="user_id" property="userId" />
+            <result column="name" property="name" />
+            <result column="profile_img" property="profileImg" />
+            <result column="email" property="email" />
+            <result column="gender" property="gender" />
+            <result column="enable_status" property="enableStatus" />
+            <result column="user_type" property="userType" />
+            <result column="create_time" property="createTime" />
+            <result column="last_edit_time" property="lastEditTime" />
+        </association>
+    </resultMap>
+    <select id="queryLocalByUserNameAmdPwd" resultMap="localAuthResultMap">
+      SELECT
+        a.local_auth_id, a.username,a.password,a.create_time, a.last_edit_time,
+        b.user_id, b.name, b.profile_img, b.email, b.gender, b.enable_status,
+        b.user_type, b.create_time, b.last_edit_time
+      FROM
+        tb_local_auth a, tb_person_info b
+      WHERE a.username=#{userName}
+      AND a.password=#{password}
+      AND a.user_id=b.user_id
+    </select>
+    <select id="queryLocalByUserId" resultMap="localAuthResultMap" >
+      SELECT
+        a.local_auth_id, a.username,a.password,a.create_time, a.last_edit_time,
+        b.user_id, b.name, b.profile_img, b.email, b.gender, b.enable_status,
+        b.user_type, b.create_time, b.last_edit_time
+      FROM
+        tb_local_auth a, tb_person_info b
+      WHERE
+        a.user_id=#{userId}
+        AND a.user_id=b.user_id
+    </select>
+    <insert id="insertLocalAuth" parameterType="com.dongzhic.o2o.pojo.LocalAuth"
+        useGeneratedKeys="true" keyProperty="localAuthId" keyColumn="local_auth_id">
+      INSERT INTO
+        tb_local_auth(user_id, username, password, create_time, last_edit_time)
+      VALUE
+        (#{personInfo.userId}, #{userName}, #{password}, #{createTime}, #{lastEditTime})
+    </insert>
+    <update id="updateLocalAuth">
+        UPDATE tb_local_auth a
+        <set>
+            <if test="password != null">a.password=#{newPassword},</if>
+            <if test="lastEditTime != null">a.last_edit_time=#{lastEditTime}</if>
+        </set>
+        WHERE a.user_id=#{userId}
+          AND a.username=#{userName}
+          AND a.password=#{password}
+    </update>
+</mapper>
