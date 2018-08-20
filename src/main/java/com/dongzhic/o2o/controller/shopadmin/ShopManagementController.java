@@ -220,8 +220,8 @@ public class ShopManagementController {
     public Map<String, Object> getShopList (HttpServletRequest request) {
         Map<String, Object> modelMap = new HashMap<String, Object>();
         PersonInfo user = new PersonInfo();
-        user.setUserId(1L);
-        user.setName("test");
+        user.setUserId(2L);
+        user.setName("Tomcat");
         request.getSession().setAttribute("user", user);
         user = (PersonInfo) request.getSession().getAttribute("user");
         try {
