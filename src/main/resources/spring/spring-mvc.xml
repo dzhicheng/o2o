@@ -36,4 +36,28 @@
     <!-- 4.扫描web相关的bean -->
     <context:component-scan base-package="com.dongzhic.o2o.controller" />
 
+    <!-- 5.权限拦截器-->
+    <mvc:interceptors>
+        <!-- 验证是否已登陆店家管理系统的拦截器 -->
+        <mvc:interceptor>
+            <mvc:mapping path="/shopAdmin/**"/>
+            <bean id="ShopInterceptor" class="com.dongzhic.o2o.interceptor.shopadmin.ShopLoginInterceptor" />
+        </mvc:interceptor>
+        <!-- 验证是否有对该店铺有操作权限的拦截器-->
+        <mvc:interceptor>
+            <mvc:mapping path="/shopAdmin/**"/>
+            <!-- shopList page -->
+            <mvc:exclude-mapping path="/shopAdmin/shopList" />
+            <mvc:exclude-mapping path="/shopAdmin/getShopList" />
+            <!-- shopRegister page -->
+            <mvc:exclude-mapping path="/shopAdmin/getShopInitInfo" />
+            <mvc:exclude-mapping path="/shopAdmin/registerShop" />
+            <mvc:exclude-mapping path="/shopAdmin/shopOperation" />
+            <!-- shopManage page -->
+            <mvc:exclude-mapping path="/shopAdmin/shopManagement" />
+            <mvc:exclude-mapping path="/shopAdmin/getShopManagementInfo" />
+            <bean id="ShopPermissionInterceptor" class="com.dongzhic.o2o.interceptor.shopadmin.ShopPermissionInterceptor" />
+        </mvc:interceptor>
+    </mvc:interceptors>
+
 </beans>
