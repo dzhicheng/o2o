@@ -32,28 +32,28 @@ public class ShopServiceImpl implements ShopService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ShopExecution addShop(Shop shop, ImageHolder thumbnail ) {
-        //空值判断
+        // 1.空值判断
         if (shop == null) {
             return new ShopExecution(ShopSateEnum.NULL_SHOP);
         }
         try {
-            //给店铺信息付初始值
+            // 2.给店铺信息付初始值
             shop.setEnableStatus(0);
             shop.setCreateTime(new Date());
             shop.setLastEditTime(new Date());
-            //添加店铺信息
+            // 3.添加店铺信息
             int effectedNum = shopDao.insertShop(shop);
             if (effectedNum <= 0) {
                 throw new ShopOperationException("店铺创建失败");
             } else {
                 if (thumbnail.getImage() != null) {
-                    //存储图片
                     try {
+                        // 4.存储图片
                         addShopImg(shop, thumbnail);
                     } catch (Exception e) {
                         throw new ShopOperationException("addShopImg error:"+e.getMessage());
                     }
-                    //跟新店铺的图片地址
+                    // 5.跟新店铺的图片地址
                     effectedNum = shopDao.updateShop(shop);
                     if (effectedNum <= 0) {
                         throw new RuntimeException("跟新图片地址失败");
@@ -106,16 +106,20 @@ public class ShopServiceImpl implements ShopService {
      * @param thumbnail 图片
      */
     private void addShopImg(Shop shop, ImageHolder thumbnail) {
-        //获取shop图片目录的相对值路径
+        // 获取shop图片目录的相对路径
         String dest = PathUtil.getShopImagePath(shop.getShopId());
+        // 处理缩略图，并返回新生成图片的相对路径
         String shopImgAddr = ImageUtil.generateThumbnail(thumbnail, dest);
         shop.setShopImg(shopImgAddr);
     }
 
     @Override
     public ShopExecution getShopList(Shop shopCondition, int pageIndex, int pageSize) {
+        // 根据页数和每页条数获取查询对应的行数
         int rowIndex = PageCalculator.calculateRowIndex(pageIndex, pageSize);
+        // 根据条件、开始行数，获取行数查询店铺
         List<Shop> shopList = shopDao.queryShopList(shopCondition, rowIndex, pageSize);
+        // 相同条件获取店铺总数
         int count = shopDao.queryShopCount(shopCondition);
         ShopExecution shopExecution = new ShopExecution();
         if (shopList != null) {

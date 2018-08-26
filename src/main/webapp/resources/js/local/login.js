@@ -1,10 +1,10 @@
 $(function() {
-    // 登录验证的controller url
+    // 登陆账号验证URL
     var loginUrl = '/o2o/local/loginCheck';
     // 从地址栏的URL里获取usertype
-    // usertype=1则为customer,其余为shopowner
-    var usertype = getQueryString('usertype');
-    // 登录次数，累积登录三次失败之后自动弹出验证码要求输入
+    // userType=1则为用户,其余为商家
+    var userType = getQueryString('userType');
+    // 标记登录错误次数，累积登录三次失败之后自动弹出验证码要求输入
     var loginCount = 0;
 
     $('#submit').click(function() {
@@ -43,7 +43,7 @@ $(function() {
             success : function(data) {
                 if (data.success) {
                     $.toast('登录成功！');
-                    if (usertype == 1) {
+                    if (userType == 1) {
                         // 若用户在前端展示系统页面则自动链接到前端展示系统首页
                         window.location.href = '/o2o/frontend/index';
                     } else {

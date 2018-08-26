@@ -16,6 +16,7 @@ public class ShopLoginInterceptor extends HandlerInterceptorAdapter {
 
     /**
      * 主要做事前拦截，即用户操作发生前，改写preHandle里的逻辑，进行拦截
+     * 判断用户是否已登陆，没登陆跳转登陆界面
      * @param request
      * @param response
      * @param handler
@@ -40,7 +41,6 @@ public class ShopLoginInterceptor extends HandlerInterceptorAdapter {
         PrintWriter out = response.getWriter();
         out.println("<html>");
         out.println("<script>");
-        String test = request.getContextPath();
         //_self 表示当前窗口  ','_self')
         out.println("window.open ('"+request.getContextPath() + "/local/login?usertype=2','_self')");
         out.println("</script>");

@@ -33,9 +33,13 @@ public class ShopCategoryServiceImpl implements ShopCategoryService {
 
     @Override
     public List<ShopCategory> getShopCategoryList(ShopCategory shopCategoryCondition) {
+        // 定义redis的key前缀
         String key = SCLISTKEY;
+        // 定义接收对象
         List<ShopCategory> shopCategoryList = null;
+        // 定义jackson数据转换操作类
         ObjectMapper mapper = new ObjectMapper();
+        // 拼接出redis的key
         if (shopCategoryCondition == null) {
             // 若查询条件为空，则列出所有首页大类，即parent为空的店铺类别
             key = key + "_allFirstLevel";
@@ -47,7 +51,8 @@ public class ShopCategoryServiceImpl implements ShopCategoryService {
             // 列出所有子类别，不管其属于那个类，都列出来
             key = key + "_allSecondLevel";
         }
-        if (jedisKeys.exits(key)) {
+        // 判断key是否存在
+        if (!jedisKeys.exits(key)) {
             shopCategoryList = shopCategoryDao.queryShopCategory(shopCategoryCondition);
             String value = null;
             try {

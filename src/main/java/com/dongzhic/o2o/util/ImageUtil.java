@@ -52,9 +52,13 @@ public class ImageUtil {
      * @return 文件路径
      */
     public static String generateThumbnail(ImageHolder thumbnail, String targetAddr) {
+        // 生成随机文件名,当前年月日时分秒+五位随机数
         String realFileName  = getRandomFileName();
+        // 获取输入文件的后缀
         String extension = getFileExtension(thumbnail.getImageName());
+        // 创建目录
         makeDirPath(targetAddr);
+        // 获取文件相对路径全名
         String relativeAddr = targetAddr + realFileName + extension;
         logger.debug("current relativeAddr is :" + relativeAddr);
         File dest = new File(PathUtil.getImgBasePath() + relativeAddr);

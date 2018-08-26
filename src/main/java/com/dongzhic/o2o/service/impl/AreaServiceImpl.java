@@ -33,11 +33,17 @@ public class AreaServiceImpl implements AreaService {
 
     @Override
     public List<Area> getAreaList() {
+        // 定义redis的key
         String key = AREALISTKEY;
+        // 定义接收对象
         List<Area> areaList = null;
+        // 定义jackson数据转换操作类
         ObjectMapper mapper = new ObjectMapper();
+        // 定义jackson数据转换操作类
         if (!jedisKeys.exits(key)) {
+            // 若不存在，则从数据库里面取出相应数据
             areaList = areaDao.queryArea();
+            // 将相关的实体类集合转换成string,存入redis里面对应的key中
             String value = null;
             try {
                 value = mapper.writeValueAsString(areaList);
@@ -48,9 +54,12 @@ public class AreaServiceImpl implements AreaService {
             }
             jedisStrings.set(key, value);
         } else {
-            JavaType javaType = mapper.getTypeFactory().constructParametricType(ArrayList.class, Area.class);
+            // 若存在，则直接从redis里面取出相应数据
             String value = jedisStrings.get(key);
+            // 指定要将string转换成的集合类型
+            JavaType javaType = mapper.getTypeFactory().constructParametricType(ArrayList.class, Area.class);
             try {
+                // 将相关key对应的value里的的string转换成对象的实体类集合
                 areaList = mapper.readValue(value, javaType);
             } catch (IOException e) {
                 e.printStackTrace();

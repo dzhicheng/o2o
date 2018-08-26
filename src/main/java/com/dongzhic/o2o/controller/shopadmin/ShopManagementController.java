@@ -71,8 +71,11 @@ public class ShopManagementController {
         List<Area> areaList = new ArrayList<Area>();
 
         try {
+            // 1.获取所有店铺种类
             shopCategoryList = shopCategoryService.getShopCategoryList(new ShopCategory());
+            // 2.获取所有地区
             areaList = areaService.getAreaList();
+
             modelMap.put("success", true);
             modelMap.put("shopCategoryList", shopCategoryList);
             modelMap.put("areaList", areaList);
@@ -86,32 +89,37 @@ public class ShopManagementController {
     @RequestMapping(value = "/registerShop", method = RequestMethod.POST)
     @ResponseBody
     private Map<String, Object> registerShop (HttpServletRequest request ) {
+        
         Map<String, Object> modelMap = new HashMap<String, Object>();
+
+        // 1.验证码校验
         if (!CodeUtil.checkVerifyCode(request)) {
             modelMap.put("success", false);
             modelMap.put("errMsg", "输入的验证码有误");
             return modelMap;
         }
-        //1.接收并转换相应的参数，包裹商铺信息和图片信息
+
+        // 2.获取缩略图
+        // 2.1接收并转换相应的参数，包裹商铺信息和图片信息
         String shopStr = HttpServletRequestUtil.getString(request, "shopStr");
         ObjectMapper mapper = new ObjectMapper();
         Shop shop = null;
         try {
-            //通过jackson将json转化为实体类
+            // 2.2.通过jackson将json转化为实体类
             shop = mapper.readValue(shopStr, Shop.class);
         } catch (Exception e) {
             modelMap.put("success", false);
             modelMap.put("errMsg", e.getMessage());
             return modelMap;
         }
-        //获取前端传递过来的文件流
+        // 2.3.获取前端传递过来的文件流
         CommonsMultipartFile shopImg = null;
         CommonsMultipartResolver commonsMultipartResolver = new CommonsMultipartResolver(
                 request.getSession().getServletContext());
-        //判断是否有上传的文件流
+        // 2.4.判断是否有上传的文件流
         if (commonsMultipartResolver.isMultipart(request)) {
             MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
-            //强转为spring能够处理的文件流
+            // 2.5.强转为spring能够处理的文件流
             shopImg = (CommonsMultipartFile) multipartHttpServletRequest.getFile("shopImg");
         } else {
             modelMap.put("success", false);
@@ -119,23 +127,25 @@ public class ShopManagementController {
             return modelMap;
         }
 
-        //2.注册店铺
+        // 3.注册店铺
         if (shop != null && shopImg != null) {
-            //设置店铺所有者(从session中获取),先写死续修改
+            // 3.1设置店铺所有者(从session中获取)
             PersonInfo owner = (PersonInfo) request.getSession().getAttribute("user");
             shop.setOwner(owner);
             ShopExecution se = null;
             try {
                 ImageHolder imageHolder = new ImageHolder(shopImg.getOriginalFilename(), shopImg.getInputStream());
+                // 3.2添加店铺
                 se = shopService.addShop(shop, imageHolder);
                 if (se.getState() == ShopSateEnum.CHECK.getState()) {
                     modelMap.put("success", true);
-                    //该用户可以操作的店铺列表
+                    // 3.3获取该用户可以操作的店铺列表
                     List<Shop> shopList = (List<Shop>) request.getSession().getAttribute("shopList");
                     if (shopList == null || shopList.size() == 0) {
                         shopList = new ArrayList<Shop>();
                     }
                     shopList.add(se.getShop());
+                    // 3.4将店铺列表存入session中
                     request.getSession().setAttribute("shopList", shopList);
                 } else {
                     modelMap.put("success", false);
@@ -219,14 +229,14 @@ public class ShopManagementController {
     @ResponseBody
     public Map<String, Object> getShopList (HttpServletRequest request) {
         Map<String, Object> modelMap = new HashMap<String, Object>();
-        PersonInfo user = new PersonInfo();
-        request.getSession().setAttribute("user", user);
-        user = (PersonInfo) request.getSession().getAttribute("user");
+        // 1.获取session中的用户信息
+        PersonInfo user = (PersonInfo) request.getSession().getAttribute("user");
         try {
             Shop shopCondition = new Shop();
             shopCondition.setOwner(user);
-            ShopExecution shopExecution = shopService.getShopList(shopCondition, 1, 100);
-            // 列出店铺成功之后，将店铺放入session中作为权限验证依据，即该帐号只能操作它自己的店铺
+            // 2.获取登陆用户下所有的店铺
+            ShopExecution shopExecution = shopService.getShopList(shopCondition, 0, 100);
+            // 3.将店铺放入session中作为权限验证依据，即该帐号只能操作它自己的店铺
             request.getSession().setAttribute("shopList", shopExecution.getShopList());
             modelMap.put("success", true);
             modelMap.put("user", user);

@@ -125,6 +125,11 @@ public class LocalAuthController {
         return modalMap;
     }
 
+    /**
+     * 用户登陆校验
+     * @param request
+     * @return
+     */
     @RequestMapping(value = "/loginCheck", method = RequestMethod.POST)
     @ResponseBody
     private Map<String, Object> loginCheck (HttpServletRequest request) {
@@ -132,18 +137,19 @@ public class LocalAuthController {
 
         // 获取是否需要进行验证码校验的标识符
         boolean needVerify = HttpServletRequestUtil.getBoolean(request, "needVerify");
-        // 验证码校验
+        // 1.验证码校验
         if (needVerify && !CodeUtil.checkVerifyCode(request)) {
             modalMap.put("success", false);
             modalMap.put("errMsg", "验证码输入错误");
             return modalMap;
         }
+        // 2.获取前台传的登陆账号信息
         String userName = HttpServletRequestUtil.getString(request, "userName");
         String password = HttpServletRequestUtil.getString(request, "password");
         // 非空校验
         if (userName != null && password != null) {
            try {
-               // 传入帐号和密码去获取平台帐号信息
+               // 3.根据帐号信息获取平台帐号信息
                LocalAuth localAuth = localAuthService.getLocalAuthByUserNameAmdPwd(userName, password);
                if (localAuth != null) {
                    modalMap.put("success", true);
